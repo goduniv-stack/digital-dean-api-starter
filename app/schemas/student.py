@@ -1,22 +1,31 @@
-from pydantic import BaseModel, ConfigDict
+from uuid import UUID
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class StrictModel(BaseModel):
-    """Базова модель, яка не приймає невідомих полів."""
-
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+    )
 
 
 class StudentCreate(StrictModel):
-    # TODO: додайте full_name, email і group_code з обмеженнями.
-    pass
-
-
-class StudentRead(StudentCreate):
-    # TODO: додайте серверний ідентифікатор id.
-    pass
+    full_name: str = Field(..., min_length=5, max_length=120)
+    email: EmailStr
+    group_code: str = Field(..., min_length=3, max_length=20)
+    study_program: str = Field(..., min_length=2, max_length=100)
 
 
 class StudentUpdate(StrictModel):
-    # TODO: оголосіть дозволені необов’язкові поля для часткового оновлення.
-    pass
+    full_name: str | None = Field(default=None, min_length=5, max_length=120)
+    email: EmailStr | None = None
+    group_code: str | None = Field(default=None, min_length=3, max_length=20)
+    study_program: str | None = Field(default=None, min_length=2, max_length=100)
+
+
+class StudentRead(StrictModel):
+    id: UUID
+    full_name: str
+    email: str
+    group_code: str
+    study_program: str
